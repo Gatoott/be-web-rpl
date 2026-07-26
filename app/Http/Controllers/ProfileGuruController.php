@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\ProfileGuru;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 
 class ProfileGuruController extends Controller
 {
@@ -18,28 +19,35 @@ class ProfileGuruController extends Controller
     }
 
     // CRETE
-    public function store(Request $request) {
-        if($request->user()->role != 'admin'){
+    public function store(Request $request){
+        if ($request->user()->role != 'admin') {
             return response()->json([
                 'status' => 'error',
-                'message' => 'Anda bukan admin'
+                'message' => 'Anda bukan admin',
             ], 403);
         }
 
         $request->validate([
-            'nama_guru' => 'required',
-            'mengajar' => 'required',
+            'nama_guru' => 'required|string|max:255',
+            'mengajar' => 'required|string|max:255',
+            'foto' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
         ]);
 
-        ProfileGuru::create([
+        $path = $request->hasFile('foto')
+            ? $request->file('foto')->store('profile', 'public')
+            : 'foto/pp.webp';
+
+        $profile = ProfileGuru::create([
+            'foto' => $path,
             'nama_guru' => $request->nama_guru,
             'mengajar' => $request->mengajar,
         ]);
 
         return response()->json([
-            'status' => 'succes',
-            'message' => 'berhasil membuat profile guru'
-        ]);
+            'status' => 'success',
+            'message' => 'Berhasil membuat profile guru',
+            'data' => $profile,
+        ], 201);
     }
 
     // UPDATE
@@ -51,7 +59,7 @@ class ProfileGuruController extends Controller
             ], 403);
         }
 
-        $guru = ProfileGuru::where('id', $id);
+        $guru = ProfileGuru::find($id);
 
         if(!$guru) {
             return response()->json([
@@ -64,6 +72,17 @@ class ProfileGuruController extends Controller
             'nama_guru' => 'required',
             'mengajar' => 'required',
         ]);
+
+        if ($request->hasFile('foto')) {
+            // Hapus foto lama kalau ada
+            if ($guru->foto && Storage::disk('public')->exists($guru->foto)) {
+                Storage::disk('public')->delete($guru->foto);
+            }
+
+            // Upload foto baru
+            $path = $request->file('foto')->store('produk', 'public');
+            $guru->foto = $path;
+        }
 
         $guru->update([
             'nama_guru' => $request->nama_guru,
