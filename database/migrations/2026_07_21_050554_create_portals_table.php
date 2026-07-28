@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('portals', function (Blueprint $table) {
             $table->id();
-            $table->string('url_foto');
+            $table->string('foto');
             $table->string('judul');
             $table->text('deskripsi');  
             $table->timestamps();

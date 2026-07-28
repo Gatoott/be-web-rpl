@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\ProfileGuru;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 
 class ProfileGuruController extends Controller
 {
@@ -34,7 +35,11 @@ class ProfileGuruController extends Controller
         ]);
 
         $path = $request->hasFile('foto')
-            ? $request->file('foto')->store('profile', 'public')
+            ? $request->file('foto')->storeAs(
+                'profile',
+                now()->format('Ymd_His') . '_' . Str::random(10) . '.' . $request->file('foto')->getClientOriginalExtension(),
+                'public'
+            )
             : 'foto/pp.webp';
 
         $profile = ProfileGuru::create([
@@ -74,12 +79,10 @@ class ProfileGuruController extends Controller
         ]);
 
         if ($request->hasFile('foto')) {
-            // Hapus foto lama kalau ada
             if ($guru->foto && Storage::disk('public')->exists($guru->foto)) {
                 Storage::disk('public')->delete($guru->foto);
             }
 
-            // Upload foto baru
             $path = $request->file('foto')->store('produk', 'public');
             $guru->foto = $path;
         }
