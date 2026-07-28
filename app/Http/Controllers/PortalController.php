@@ -76,7 +76,7 @@ class PortalController extends Controller
         if(!$portal) {
             return response()->json([
                 'status' => 'error',
-                'message' => 'Profile guru tidak ditemukan'
+                'message' => 'Portal tidak ditemukan'
             ], 404);
         }
 
@@ -112,8 +112,29 @@ class PortalController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(portal $portal)
+    public function destroy(Request $request, $id)
     {
-        //
+        if ($request->user()->role != 'admin') {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Anda bukan admin',
+            ], 403);
+        }
+        
+        $portal = portal::find($id);
+
+        if(!$portal) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Portal tidak ditemukan'
+            ], 404);
+        }
+
+        $portal->delete();
+
+        return response()->json([
+            'status' => 'succes',
+            'message' => 'berhasil menghapus portal'
+        ]);
     }
 }
