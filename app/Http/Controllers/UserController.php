@@ -10,12 +10,14 @@ class UserController extends Controller
 {
     public function regis(Request $request) {
         $request->validate([
+            'email' => 'required|email',
             'username' => 'required|unique:users,username',
             'password' => 'required|confirmed'
         ]);
 
         $user = User::create([
             'username' => $request->username,
+            'email' => $request->email,
             'password' => bcrypt($request->password)
         ]);
 

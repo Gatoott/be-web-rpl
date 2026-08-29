@@ -18,6 +18,10 @@ class User extends Authenticatable
     /** @use HasFactory<UserFactory> */
     use HasFactory, Notifiable, HasApiTokens;
 
+    public function projeks() {
+        return $this->hasMany(Projek::class);
+    }
+
     /**
      * Get the attributes that should be cast.
      *

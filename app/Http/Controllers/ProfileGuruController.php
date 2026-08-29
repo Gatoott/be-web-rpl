@@ -36,7 +36,7 @@ class ProfileGuruController extends Controller
 
         $path = $request->hasFile('foto')
             ? $request->file('foto')->storeAs(
-                'profile',
+                'guru',
                 now()->format('Ymd_His') . '_' . Str::random(10) . '.' . $request->file('foto')->getClientOriginalExtension(),
                 'public'
             )
@@ -83,7 +83,7 @@ class ProfileGuruController extends Controller
                 Storage::disk('public')->delete($guru->foto);
             }
 
-            $path = $request->file('foto')->store('produk', 'public');
+            $path = $request->file('foto')->store('guru', 'public');
             $guru->foto = $path;
         }
 
