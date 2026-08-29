@@ -10,11 +10,16 @@ class ProfileGuruController extends Controller
 {
     // READ
     public function index() {
-        $guru = ProfileGuru::get()->all();
+        $gurus = ProfileGuru::all();
+        foreach ($gurus as $item) {
+            if ($item->foto) {
+                $item->foto = Storage::disk('s3')->url($item->foto);
+            }
+        }
 
         return response()->json([
             'status' => 'succes',
-            'data' => $guru
+            'data' => $gurus
         ]);
     }
 

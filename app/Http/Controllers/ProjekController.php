@@ -14,11 +14,16 @@ class ProjekController extends Controller
      */
     public function index()
     {
-        $projek = Projek::with('user')->get();
+        $projeks = Projek::with('user')->get();
+        foreach ($projeks as $projek) {
+            if ($projek->foto) {
+                $projek->foto = Storage::disk('s3')->url($projek->foto);
+            }
+        }
 
         return response()->json([
             'status' => 'success',
-            'projeck' => $projek
+            'projeck' => $projeks
         ], 200);
     }
 
@@ -83,6 +88,7 @@ class ProjekController extends Controller
      */
     public function show(Projek $projek)
     {
+        $projek->load('user');
         return response()->json([
             'status' => 'success',
             'projek' => $projek

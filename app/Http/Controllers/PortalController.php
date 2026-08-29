@@ -13,7 +13,12 @@ class PortalController extends Controller
      */
     public function index()
     {
-        $portals = portal::orderBy('created_at');
+        $portals = portal::orderBy('created_at')->get();
+        foreach ($portals as $item) {
+            if($item->foto) {
+                $item->foto = Storage::disk('s3')->url($item->foto);
+            }
+        }
 
         return response()->json([
             'status' => 'success',
@@ -64,6 +69,17 @@ class PortalController extends Controller
     }
 
     /**
+     * Display the specified resource.
+     */
+    public function show(portal $portal)
+    {
+        return response()->json([
+            'status' => 'success',
+            'portal' => $portal
+        ], 200);
+    }
+
+    /**
      * Update the specified resource in storage.
      */
     public function update(Request $request, portal $portal)
@@ -83,8 +99,8 @@ class PortalController extends Controller
         }
 
         $request->validate([
-            'nama_guru' => 'required',
-            'mengajar' => 'required',
+            'judul' => 'required',
+            'deskripsi' => 'required',
         ]);
 
         if ($request->hasFile('foto')) {

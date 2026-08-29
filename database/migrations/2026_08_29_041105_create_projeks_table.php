@@ -16,7 +16,7 @@ return new class extends Migration
             $table->foreignId('user_id')->constrained()->cascadeOnDelete();
             $table->string('foto');
             $table->string('nama_projek');
-            $table->string('deskripsi');
+            $table->text('deskripsi');
             $table->string('link_web');
             $table->timestamps();
         });
