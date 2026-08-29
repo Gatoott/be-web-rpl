@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -19,6 +20,10 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        //
+        // Mengizinkan akses dokumentasi Scramble di production / Vercel
+        Gate::define('viewApiDocs', function ($user = null) {
+            return true;
+        });
     }
 }
+
