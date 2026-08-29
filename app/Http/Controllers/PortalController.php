@@ -5,7 +5,6 @@ namespace App\Http\Controllers;
 use App\Models\portal;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Str;
 
 class PortalController extends Controller
 {
@@ -40,7 +39,7 @@ class PortalController extends Controller
             'deskripsi' => 'required'
         ]);
 
-        $path = Storage::disk('s3')->putFileAs('portal', $request->file('foto'), now() . '-' . Str::slug($request->file('foto')->getClientOriginalPath()));
+        $path = $request->file('foto')->store('portal', 's3');
 
         if(!$path) {
             return response()->json([
@@ -93,7 +92,7 @@ class PortalController extends Controller
                 Storage::disk('s3')->delete($portal->foto);
             }
 
-            $path = Storage::disk('s3')->putFileAs('portal', $request->file('foto'), Str::slug($request->file('foto')->getClientOriginalName()));
+            $path = $request->file('foto')->store('portal', 's3');
             if(!$path) {
                 return response()->json([
                     'status' => 'error',

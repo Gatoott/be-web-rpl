@@ -5,7 +5,6 @@ namespace App\Http\Controllers;
 use App\Models\ProfileGuru;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Str;
 
 class ProfileGuruController extends Controller
 {
@@ -35,8 +34,7 @@ class ProfileGuruController extends Controller
         ]);
 
         $path = $request->hasFile('foto') ? 
-            Storage::disk('s3')->putFileAs('guru', $request->file('foto'), now() . '-' . Str::slug($request->file('foto')->getClientOriginalName())) 
-            : 'guru/pp.web';
+            $request->file('foto')->store('guru', 's3') : 'guru/pp.web';
 
         if(!$path) {
             return response()->json([
@@ -69,7 +67,7 @@ class ProfileGuruController extends Controller
             ], 403);
         }
 
-        $request->validate([
+        $validated = $request->validate([
             'nama_guru' => 'required',
             'mengajar' => 'required',
         ]);
@@ -79,7 +77,7 @@ class ProfileGuruController extends Controller
                 Storage::disk('s3')->delete($guru->foto);
             }
 
-            $path = Storage::disk('s3')->putFileAs('guru', $request->file('foto'), now() . '-' . Str::slug($request->file('foto')->getClientOriginalName()));
+            $path = $request->file('foto')->store('guru', 's3');
             if(!$path) {
                 return response()->json([
                     'status' => 'error',
@@ -87,13 +85,10 @@ class ProfileGuruController extends Controller
                 ], 500);
             }
 
-            $guru->foto = $path;
+            $validated['foto'] = $path;
         }
 
-        $guru->update([
-            'nama_guru' => $request->nama_guru,
-            'mengajar' => $request->mengajar,
-        ]);
+        $guru->update($validated);
 
         return response()->json([
             'status' => 'succes',

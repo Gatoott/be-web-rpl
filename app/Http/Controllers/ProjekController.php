@@ -6,7 +6,6 @@ use App\Models\Projek;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Str;
 
 class ProjekController extends Controller
 {
@@ -52,7 +51,7 @@ class ProjekController extends Controller
             'link_web' => 'required'
         ]);
 
-        $path = Storage::disk('s3')->putFileAs('projek', $request->file('foto'), now() . '-'. Str::slug($request->file('foto')->getClientOriginalName()));
+        $path = $request->file('foto')->store('projek', 's3');
 
         if(!$path) {
             return response()->json([
@@ -126,7 +125,7 @@ class ProjekController extends Controller
                 Storage::disk('s3')->delete($projek->foto);
             }
 
-            $path = Storage::disk('s3')->putFileAs('projek', $request->file('foto'), Str::slug($request->file('foto')->getClientOriginalName()));
+            $path = $request->file('foto')->store('projek', 's3');
             $projek->foto = $path;
         }
 
