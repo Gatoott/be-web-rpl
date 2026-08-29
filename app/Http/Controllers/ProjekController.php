@@ -41,7 +41,7 @@ class ProjekController extends Controller
         }
         $role = $user->role;
 
-        if($role !== 'admin' && $role !== 'siswa') {
+        if($role !== 'admin' && $role !== 'murid') {
             return response()->json([
                 'status' => 'error',
                 'message' => 'anda bukan admin atau siswa!'

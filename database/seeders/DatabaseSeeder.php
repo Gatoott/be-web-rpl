@@ -18,10 +18,10 @@ class DatabaseSeeder extends Seeder
         // User::factory(10)->create();
 
         User::create([
-            'username' => 'dsa',
-            'email' => 'asda@gmail.com',
-            'password' => '1dsasasd',
-            'role' => 'siswa',
+            'username' => 'Muhammad Arfa Nurhalim',
+            'email' => 'arfa@gmail.com',
+            'password' => 'password',
+            'role' => 'murid',
         ]);
     }
 }

@@ -11,6 +11,9 @@ Route::get('/user', function (Request $request) {
     return $request->user();
 })->middleware('auth:sanctum');
 
+Route::get('/user', [UserController::class, 'index']);
+Route::get('/user/{user}', [UserController::class, 'show']);
+
 Route::post('/login', [UserController::class, 'login']);
 Route::post('/register', [UserController::class, 'regis']);
 
@@ -23,6 +26,10 @@ Route::get('/projek', [ProjekController::class, 'index']);
 Route::get('/projek/{projek}', [ProjekController::class, 'show']);
 
 Route::middleware('auth:sanctum')->group(function () {
+    Route::post('/user', [UserController::class, 'store']);
+    Route::put('/user/{user}/update', [UserController::class,'update']);
+    Route::delete('/user/{user}/delete', [UserController::class,'destroy']);
+
     Route::post('/guru', [ProfileGuruController::class, 'store']);
     Route::put('/guru/{guru}/update', [ProfileGuruController::class, 'update']);
     Route::delete('/guru/{guru}/delete', [ProfileGuruController::class, 'destroy']);
