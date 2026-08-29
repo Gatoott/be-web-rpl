@@ -34,23 +34,28 @@ class PortalController extends Controller
             ], 403);
         }
 
-        $validated = $request->validate([
+        $request->validate([
             'foto' => 'required|image|mimes:jpg,jpeg,png,webp|max:5000',
             'judul' => 'required',
             'deskripsi' => 'required'
         ]);
 
-        $path = $request->file('foto')->storeAs(
-                'profile',
-                now()->format('Ymd_His') . '_' . Str::random(10) . '.' . $request->file('foto')->getClientOriginalExtension(),
-                'public'
-            );
+        $path = Storage::disk('s3')->putFileAs('portal', $request->file('foto'), now() . '-' . Str::slug($request->file('foto')->getClientOriginalPath()));
+
+        if(!$path) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Gagal uplod foto'
+            ], 500);
+        }
 
         $profile = portal::create([
             'foto' => $path,
             'judul' => $request->judul,
             'deskripsi' => $request->deskripsi,
         ]);
+
+        $profile->foto = Storage::disk('s3')->url($path);
 
         return response()->json([
             'status' => 'success',
@@ -62,7 +67,7 @@ class PortalController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, $id)
+    public function update(Request $request, portal $portal)
     {
         if ($request->user()->role != 'admin') {
             return response()->json([
@@ -70,8 +75,6 @@ class PortalController extends Controller
                 'message' => 'Anda bukan admin',
             ], 403);
         }
-        
-        $portal = portal::find($id);
 
         if(!$portal) {
             return response()->json([
@@ -86,15 +89,17 @@ class PortalController extends Controller
         ]);
 
         if ($request->hasFile('foto')) {
-            if ($portal->foto && Storage::disk('public')->exists($portal->foto)) {
-                Storage::disk('public')->delete($portal->foto);
+            if ($portal->foto && Storage::disk('s3')->exists($portal->foto)) {
+                Storage::disk('s3')->delete($portal->foto);
             }
 
-            $path = $request->file('foto')->storeAs(
-                'profile',
-                now()->format('Ymd_His') . '_' . Str::random(10) . '.' . $request->file('foto')->getClientOriginalExtension(),
-                'public'
-            );
+            $path = Storage::disk('s3')->putFileAs('portal', $request->file('foto'), Str::slug($request->file('foto')->getClientOriginalName()));
+            if(!$path) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Gagal uplod foto'
+                ], 500);
+            }
             $portal->foto = $path;
         }
 
@@ -112,7 +117,7 @@ class PortalController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Request $request, $id)
+    public function destroy(Request $request, portal $portal)
     {
         if ($request->user()->role != 'admin') {
             return response()->json([
@@ -120,14 +125,16 @@ class PortalController extends Controller
                 'message' => 'Anda bukan admin',
             ], 403);
         }
-        
-        $portal = portal::find($id);
 
         if(!$portal) {
             return response()->json([
                 'status' => 'error',
                 'message' => 'Portal tidak ditemukan'
             ], 404);
+        }
+
+        if($portal->foto && Storage::disk('s3')->exists($portal->foto)) {
+            Storage::disk('s3')->delete($portal->foto);
         }
 
         $portal->delete();

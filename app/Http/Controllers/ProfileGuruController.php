@@ -35,7 +35,7 @@ class ProfileGuruController extends Controller
         ]);
 
         $path = $request->hasFile('foto') ? 
-            Storage::disk('s3')->putFileAs('guru', $request->file('foto'), Str::slug($request->file('foto')->getClientOriginalName())) 
+            Storage::disk('s3')->putFileAs('guru', $request->file('foto'), now() . '-' . Str::slug($request->file('foto')->getClientOriginalName())) 
             : 'guru/pp.web';
 
         if(!$path) {
@@ -79,7 +79,7 @@ class ProfileGuruController extends Controller
                 Storage::disk('s3')->delete($guru->foto);
             }
 
-            $path = Storage::disk('s3')->putFileAs('guru', $request->file('foto'), Str::slug($request->file('foto')->getClientOriginalName()));
+            $path = Storage::disk('s3')->putFileAs('guru', $request->file('foto'), now() . '-' . Str::slug($request->file('foto')->getClientOriginalName()));
             if(!$path) {
                 return response()->json([
                     'status' => 'error',

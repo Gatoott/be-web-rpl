@@ -22,8 +22,8 @@ Route::get('/projek/{projek}', [ProjekController::class, 'show']);
 
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('/guru', [ProfileGuruController::class, 'store']);
-    Route::put('/guru/edit/{id}', [ProfileGuruController::class, 'update']);
-    Route::delete('/guru/delete/{id}', [ProfileGuruController::class, 'destroy']);
+    Route::put('/guru/edit/{projek}', [ProfileGuruController::class, 'update']);
+    Route::delete('/guru/delete/{projek}', [ProfileGuruController::class, 'destroy']);
 
     Route::post('/portal', [PortalController::class, 'store']);
     Route::put('/portal/edit/{id}', [PortalController::class, 'update']);
