@@ -147,8 +147,18 @@ class ProjekController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Projek $projek)
+    public function destroy(Request $request, Projek $projek)
     {
+        $user = $request->user();
+        $projek->load('user');
+
+        if($projek->user_id != $user->id && $user->role != 'admin') {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'anda bukan admin atau pemilik projek ini!'
+            ], 403);
+        }
+
         if($projek->foto && Storage::disk('s3')->exists($projek->foto)) {
             Storage::disk('s3')->delete($projek->foto);
         }

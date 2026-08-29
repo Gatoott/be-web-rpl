@@ -34,19 +34,24 @@ class ProfileGuruController extends Controller
             'foto' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
         ]);
 
-        $path = $request->hasFile('foto')
-            ? $request->file('foto')->storeAs(
-                'guru',
-                now()->format('Ymd_His') . '_' . Str::random(10) . '.' . $request->file('foto')->getClientOriginalExtension(),
-                'public'
-            )
-            : 'foto/pp.webp';
+        $path = $request->hasFile('foto') ? 
+            Storage::disk('s3')->putFileAs('guru', $request->file('foto'), Str::slug($request->file('foto')->getClientOriginalName())) 
+            : 'guru/pp.web';
+
+        if(!$path) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'gagal upload foto!'
+            ], 500);
+        }
 
         $profile = ProfileGuru::create([
             'foto' => $path,
             'nama_guru' => $request->nama_guru,
             'mengajar' => $request->mengajar,
         ]);
+
+        $profile->foto = Storage::disk('s3')->url($path);
 
         return response()->json([
             'status' => 'success',
@@ -56,21 +61,12 @@ class ProfileGuruController extends Controller
     }
 
     // UPDATE
-    public function update(Request $request, $id) {
+    public function update(Request $request, ProfileGuru $guru) {
         if($request->user()->role != 'admin'){
             return response()->json([
                 'status' => 'error',    
                 'message' => 'Anda bukan admin'
             ], 403);
-        }
-
-        $guru = ProfileGuru::find($id);
-
-        if(!$guru) {
-            return response()->json([
-                'status' => 'error',
-                'message' => 'Profile guru tidak ditemukan'
-            ], 404);
         }
 
         $request->validate([
@@ -79,11 +75,18 @@ class ProfileGuruController extends Controller
         ]);
 
         if ($request->hasFile('foto')) {
-            if ($guru->foto && Storage::disk('public')->exists($guru->foto)) {
-                Storage::disk('public')->delete($guru->foto);
+            if ($guru->foto && Storage::disk('s3')->exists($guru->foto)) {
+                Storage::disk('s3')->delete($guru->foto);
             }
 
-            $path = $request->file('foto')->store('guru', 'public');
+            $path = Storage::disk('s3')->putFileAs('guru', $request->file('foto'), Str::slug($request->file('foto')->getClientOriginalName()));
+            if(!$path) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'gagal upload foto!'
+                ], 500);
+            }
+
             $guru->foto = $path;
         }
 
@@ -99,7 +102,7 @@ class ProfileGuruController extends Controller
     }
 
     // DELETE
-    public function destroy(Request $request, $id) {
+    public function destroy(Request $request, ProfileGuru $guru){
         if($request->user()->role != 'admin'){
             return response()->json([
                 'status' => 'error',
@@ -107,15 +110,10 @@ class ProfileGuruController extends Controller
             ], 403);
         }
 
-        $guru = ProfileGuru::where('id', $id);
-
-        if(!$guru) {
-            return response()->json([
-                'status' => 'error',
-                'message' => 'Profile guru tidak ditemukan'
-            ], 404);
+        if ($guru->foto && Storage::disk('s3')->exists($guru->foto)) {
+            Storage::disk('s3')->delete($guru->foto);
         }
-
+        
         $guru->delete();
 
         return response()->json([

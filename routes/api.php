@@ -18,7 +18,7 @@ Route::get('/guru', [ProfileGuruController::class, 'index']);
 Route::get('/portal', [PortalController::class, 'index']);
 
 Route::get('/projek', [ProjekController::class, 'index']);
-Route::get('/projek/{id}', [ProjekController::class, 'show']);
+Route::get('/projek/{projek}', [ProjekController::class, 'show']);
 
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('/guru', [ProfileGuruController::class, 'store']);
