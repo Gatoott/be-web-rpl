@@ -20,7 +20,7 @@ Route::post('/register', [UserController::class, 'regis']);
 Route::get('/guru', [ProfileGuruController::class, 'index']);
 
 Route::get('/portal', [PortalController::class, 'index']);
-Route::get('/portal/{portal}', [PortalController::class, 'index']);
+Route::get('/portal/{portal}', [PortalController::class, 'show']);
 
 Route::get('/projek', [ProjekController::class, 'index']);
 Route::get('/projek/{projek}', [ProjekController::class, 'show']);
