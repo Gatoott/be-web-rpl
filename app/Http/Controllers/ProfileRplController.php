@@ -13,11 +13,15 @@ class ProfileRplController extends Controller
      */
     public function index()
     {
-        $profilRpl = ProfileRpl::first();
+        $profileRpl = ProfileRpl::first();
+
+        if($profileRpl != null) {
+            $profileRpl->logo = Storage::disk('s3')->url($profileRpl->logo);
+        } 
 
         return response()->json([
             'status' => 'success',
-            'data' => $profilRpl
+            'data' => $profileRpl
         ]);
     }
 
