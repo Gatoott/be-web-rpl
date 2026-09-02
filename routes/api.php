@@ -3,6 +3,7 @@
 use App\Http\Controllers\ChatBotController;
 use App\Http\Controllers\PortalController;
 use App\Http\Controllers\ProfileGuruController;
+use App\Http\Controllers\ProfileRplController;
 use App\Http\Controllers\ProjekController;
 use App\Http\Controllers\UserController;
 use Illuminate\Http\Request;
@@ -28,10 +29,17 @@ Route::get('/portal/{portal}', [PortalController::class, 'show']);
 Route::get('/projek', [ProjekController::class, 'index']);
 Route::get('/projek/{projek}', [ProjekController::class, 'show']);
 
+Route::get('/rpl', [ProfileRplController::class, 'index']);
+
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('/user', [UserController::class, 'store']);
     Route::put('/user/{user}/update', [UserController::class,'update']);
     Route::delete('/user/{user}/delete', [UserController::class,'destroy']);
+
+    Route::post('/rpl', [ProfileRplController::class, 'store']);
+    Route::put('/rpl/{profileRpl}/update', [ProfileRplController::class, 'update']);
+    Route::delete('/rpl/{profileRpl}/delete', [ProfileRplController::class, 'destroy']);
+
 
     Route::post('/guru', [ProfileGuruController::class, 'store']);
     Route::put('/guru/{guru}/update', [ProfileGuruController::class, 'update']);
@@ -40,7 +48,6 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/portal', [PortalController::class, 'store']);
     Route::put('/portal/{portal}/update', [PortalController::class, 'update']);
     Route::delete('/portal/{portal}/delete', [PortalController::class, 'destroy']);
-
     
     Route::post('/projek', [ProjekController::class, 'store']);
     Route::put('/projek/{projek}/update', [ProjekController::class, 'update']);
